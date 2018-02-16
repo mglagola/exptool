@@ -1,0 +1,45 @@
+{
+  "plugins": [
+    "promise",
+    "node",
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:node/recommended"
+  ],
+  "env"     : {
+    "node": true,
+    "es6": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2017
+  },
+  "globals" : {
+    "__DEV__"      : false,
+    "__PROD__"     : false,
+    "__DEBUG__"    : false,
+    "__COVERAGE__" : false,
+    "__BASENAME__" : false
+  },
+  "rules": {
+    "key-spacing" : [2, {
+      "singleLine" : {
+        "beforeColon" : false,
+        "afterColon"  : true
+      },
+      "multiLine" : {
+        "beforeColon" : false,
+        "afterColon"  : true
+      }
+    }],
+    "max-len"                      : [2, 120, 2],
+    "object-curly-spacing"         : [2, "always"],
+    "semi"                         : [2, "always"],
+    "indent"                       : ["error", 4],
+    "comma-dangle"                 : ["error", "always-multiline"],
+    "no-console"                   : 0,
+    "no-process-exit"              : 0,
+    "node/no-unsupported-features" : 0,
+    "node/shebang"                 : 0
+  }
+}

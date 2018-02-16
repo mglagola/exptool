@@ -1,0 +1,43 @@
+{
+  "name": "exptool",
+  "version": "0.4.0",
+  "description": "Expo toolset to help with automation",
+  "main": "index.js",
+  "author": "Mark Glagola",
+  "license": "MIT",
+  "engines": {
+    "node": ">=9.2.1"
+  },
+  "bin": {
+    "exptool": "index.js"
+  },
+  "homepage": "https://github.com/mglagola/exptool",
+  "bugs": {
+    "url": "https://github.com/mglagola/exptool/issues"
+  },
+  "keywords": [
+    "expo",
+    "exp",
+    "react-native",
+    "ci",
+    "cd",
+    "continuous-deployment",
+    "continuous-integration"
+  ],
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "chalk": "^2.3.1",
+    "commander": "^2.14.0",
+    "package-json": "^4.0.1",
+    "ramda": "^0.25.0",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2",
+    "semver": "^5.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.1.1",
+    "eslint-plugin-node": "^5.1.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-to-editorconfig": "^1.2.0"
+  }
+}
