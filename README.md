@@ -40,155 +40,89 @@ $ exptool --help
 
 ## Examples
 
-* [Bash Script](#bash-script-example)
-* [GitLab CI/CD YAML](#gitlab-cicd-yaml-example)
+* [Step By Step Example Usage](#step-by-step-example-usage)
+* [Bash Script Example](https://github.com/mglagola/exptool/wiki/Bash-Script-Example)
+* [GitLab CI CD YAML Example](https://github.com/mglagola/exptool/wiki/GitLab-CI-CD-YAML-Example)
 
-## Bash Script Example
+## Step By Step Example Usage
 
-The following is a bash script to build iOS & Android production standalone apps.
+The following is a sequence of bash commands that, when executed in sequence, will automate your expo iOS and Android standalone app builds and deployments.
 
-You can run this script on your local machine, or ideally, translate these commands to your continuous-integration/continuous-deployment service.
+You can run these commands on your local machine, or ideally, **translate these commands to your continuous-integration/continuous-deployment service**. These commands are written to be ran in the same directory as your expo project.
 
-**Note** the script uses some env variables (`EXPO_USERNAME` & `EXPO_PASSWORD`) which you can either replace with raw values within the script or set the values within your environment (recommended).
+This is meant to be a guide, so customize it to fit your automation needs!
+
+#### Prerequisites / Notes
+
+* This guide assumes you have [exp](https://docs.expo.io/versions/latest/guides/exp-cli.html) and [fastlane](https://fastlane.tools) installed and understand how to use them!
+* Be conscious of env variables along the way.
+* If you decide to use [fastlane](https://fastlane.tools), the `fastlane deliver` command will only work on macOS.
+
+#### Setup
 
 ```bash
-# Exptool will exit with non-zero statuses when a certain command fails.
-# It's useful to exit the bash script when a command exits with a non-zero status
-# as the following commands must be run successfully in sequence for expected results.
-set -e # exit entire script when command exits with non-zero status
-
-# Install dependencies
+# Install dependencies.
 npm install
 
-# Login to expo using username & password
-# (you may already be logged in depending on your setup)
+# [Optional] Login to expo using username & password.
+# You may or may not need to do this depending on your setup.
+# Note the $EXPO_USERNAME and $EXPO_PASSWORD env variables.
 exp login -u $EXPO_USERNAME -p $EXPO_PASSWORD --non-interactive
+```
 
-# Publish `production` release 
+#### Publish To Expo
+
+```bash
+# Publish `production` release
 exp publish --release-channel production --non-interactive
+```
 
-#### =============== ####
-#### === Android === ####
-#### =============== ####
-# Makes sure that there are no active standalone apps being built at this time
+#### Build Standalone Android APK
+
+```bash
+# Makes sure that there are no active standalone apps being built at this time.
+# Will exit with a non-zero status code if there is an active standalone app already being built.
 exptool check:status 
 
-# Start building standalone android build using `production` release channel
+# Start building standalone android build using `production` release channel.
 exp build:android --release-channel production --non-interactive
 
-# Wait for the build to finish, checking its status every 2 mins (timeout is 20 mins)
-# Will exit 0 (success) once the build has successfully been built
+# Wait for the build to finish, checking its status every 2 mins (timeout is 20 mins).
+# Will exit 0 (success) once the build has successfully been built.
+# Android builds take a little longer in my experience, hence the longer interval and timeout.
 exptool wait:build --interval 120 --timeout 1200
 
 # Download the artifact to current directory as `app.apk`
 exptool download:artifact
 
-# [Optional/Advanced] Use fastlane to upload your current standalone android build
-# Uncomment below if you know how to use fastlane
-# fastlane supply --package_name "$(exptool android:package)" --apk "app.apk" --json_key_data "$JSON_KEY_DATA" --skip_upload_metadata --skip_upload_images --skip_upload_screenshots
+# [Optional/Advanced] Use fastlane to upload your current standalone android build.
+# Customize this to fit your needs. Take note of env variables. 
+# Check out https://docs.fastlane.tools for more info.
+fastlane supply --package_name "$(exptool android:package)" --apk "app.apk" --json_key_data "$JSON_KEY_DATA" --skip_upload_metadata --skip_upload_images --skip_upload_screenshots
+```
 
-#### =========== ####
-#### === iOS === ####
-#### =========== ####
-# This section is extremely similar to android steps above, take 
-# a look there if you have any questions.
+#### Build Standalone iOS IPA
+```bash
+# This section is extremely similar to android steps above,
+# take a look there if you have any questions.
 exptool check:status
 exp build:ios --release-channel production --non-interactive
 exptool wait:build # using default interval & timeout
 exptool download:artifact
 
-# [Optional/Advanced] Use fastlane to upload your current standalone iOS build to itc
-# set $FASTLANE_PASSWORD=[your-password] if you want to skip password prompt
-# Uncomment below if you know how to use fastlane
-# fastlane deliver --verbose --ipa "app.ipa" --username "$ITC_EMAIL" --skip_screenshots --skip_metadata
-
+# [Optional/Advanced] Use fastlane to upload your current standalone iOS build to iTunes Connect.
+# set $FASTLANE_PASSWORD=<your-itunes-connect-password> if you want to skip password prompt.
+# Take note of env variables.
+# Check out https://docs.fastlane.tools for more info.
+fastlane deliver --verbose --ipa "app.ipa" --username "$ITC_EMAIL" --skip_screenshots --skip_metadata
 ```
 
-## GitLab CI/CD YAML Example
-
-The following yaml uses [exp](https://docs.expo.io/versions/latest/guides/exp-cli.html) and [fastlane](https://fastlane.tools). The script is setup so:
-
-* Every push to master builds dependencies.
-* Every new git tag builds and publishes standalone apps to google play or itunes connect.
-
-You'll also need to set the appropriate [env variables on GitLab for your project](https://docs.gitlab.com/ce/ci/variables/README.html#secret-variables). Environment variables used are:
-
-* `EXPO_USERNAME`
-  * Your project's associated expo username.
-* `EXPO_PASSWORD`
-  * Your project's associated expo password.
-* `JSON_KEY_DATA`
-  * Data referring to your Google Developers Service Account (required for `fastlane supply`).
-  * [Setup tutorial](https://docs.fastlane.tools/actions/supply/#setup).
-* `ITC_EMAIL`
-  * Your email associated with your [iTunes Connect](https://itunesconnect.apple.com/) account.
-* `FASTLANE_PASSWORD`
-  * Your password associated with your [iTunes Connect](https://itunesconnect.apple.com/) account.
-  * Not accessed directly in the follow yaml, but is required for `fastlane deliver` if you want to skip the password prompt which is necessary for CI/CD.
-
-**Note:** `fastlane deliver` command will only work on macOS.
-
-```yaml
-after_script:
-  - exp logout
-
-cache:
-  untracked: true
-  key: "$CI_COMMIT_SHA"
-  paths:
-    - node_modules/
-
-stages:
-  - setup
-  - publish_production
-  - deploy_android_google_play
-  - deploy_ios_test_flight
-
-setup:
-  stage: setup
-  script:
-    - npm install
-  only:
-    - master
-  tags:
-    - mac # tag associated with mac gitlab-runner
-
-publish_production:
-  stage: publish_production
-  script:
-    - exp login -u $EXPO_USERNAME -p $EXPO_PASSWORD --non-interactive
-    - exp publish --release-channel production --non-interactive
-  only:
-    - tags
-  tags:
-    - mac # tag associated with mac gitlab-runner
-
-deploy_android_google_play:
-  stage: deploy_android_google_play
-  script:
-    - exp login -u $EXPO_USERNAME -p $EXPO_PASSWORD --non-interactive
-    - exptool check:status
-    - exp build:android --release-channel production --non-interactive
-    - exptool wait:build --interval 120 --timeout 1200
-    - exptool download:artifact
-    - fastlane supply --package_name "$(exptool android:package)" --apk "app.apk" --json_key_data "$JSON_KEY_DATA" --skip_upload_metadata --skip_upload_images --skip_upload_screenshots
-  only:
-    - tags
-  tags:
-    - mac # tag associated with mac gitlab-runner
-
-deploy_ios_test_flight:
-  stage: deploy_ios_test_flight
-  script:
-    - exp login -u $EXPO_USERNAME -p $EXPO_PASSWORD --non-interactive
-    - exptool check:status
-    - exp build:ios --release-channel production --non-interactive
-    - exptool wait:build
-    - exptool download:artifact
-    - fastlane deliver --verbose --ipa "app.ipa" --username "$ITC_EMAIL" --skip_screenshots --skip_metadata
-  only:
-    - tags
-  tags:
-    - mac # tag associated with mac gitlab-runner
+#### Tear Down
+```bash
+# [Optional] You may or may not need to do this depending on your setup.
+exp logout
 ```
 
+## Questions, Issues, Feature Requests
+
+Something missing? Have a question? Create a pull request or open an issue.

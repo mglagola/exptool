@@ -1,12 +1,12 @@
 {
   "name": "exptool",
   "version": "0.4.1",
-  "description": "Expo toolset to help with automation",
+  "description": "Expo cli toolset to help automate iOS and Android builds and deployments",
   "main": "index.js",
   "author": "Mark Glagola",
   "license": "MIT",
   "engines": {
-    "node": ">=9.2.1"
+    "node": ">=9.0.0"
   },
   "bin": {
     "exptool": "index.js"
@@ -19,6 +19,8 @@
     "expo",
     "exp",
     "react-native",
+    "ios",
+    "android",
     "ci",
     "cd",
     "continuous-deployment",
