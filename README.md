@@ -40,11 +40,19 @@ $ exptool --help
 
 ## Examples
 
+#### Blog Posts
+
+* [Automating Standalone Expo App Builds and Deployments with Fastlane, Exp, and Exptool](https://blog.expo.io/automating-standalone-expo-app-builds-and-deployments-with-fastlane-exp-and-exptool-9b2f5ad0a2cd)
+
+#### Wiki
+
 * [Step By Step Example Usage](#step-by-step-example-usage)
 * [Bash Script Example](https://github.com/mglagola/exptool/wiki/Bash-Script-Example)
 * [GitLab CI CD YAML Example](https://github.com/mglagola/exptool/wiki/GitLab-CI-CD-YAML-Example)
 
 ## Step By Step Example Usage
+
+_**Note**: The following example is a shortened version of [a longer blog post walkthrough](https://blog.expo.io/automating-standalone-expo-app-builds-and-deployments-with-fastlane-exp-and-exptool-9b2f5ad0a2cd)._
 
 The following is a sequence of bash commands that, when executed in sequence, will automate your expo iOS and Android standalone app builds and deployments.
 
