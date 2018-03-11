@@ -36,6 +36,7 @@ $ exptool --help
     url:artifact [project-dir]                 Prints the latest url artifact for a given project
     url:expo [options] [project-dir]           Prints the expo url for a given project and [optional] release channel
     android:package [project-dir]              Prints the android package name for a given project (reads from app.json)
+    inc:build [project-dir]                    Increments the ios.buildNumber and android.versionCode in app.json
 ```
 
 ## Examples
