@@ -30,8 +30,8 @@
     "bluebird": "^3.5.1",
     "chalk": "^2.3.1",
     "commander": "^2.14.0",
+    "lodash": "^4.17.5",
     "package-json": "^4.0.1",
-    "ramda": "^0.25.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "semver": "^5.5.0"

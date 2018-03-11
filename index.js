@@ -6,7 +6,8 @@ global.Promise = Promise;
 const pkg = require('./package.json');
 const program = require('commander');
 const chalk = require('chalk');
-const R = require('ramda');
+const F = require('lodash/fp');
+const isEmpty = require('lodash/isEmpty');
 const {
     resolveHome,
     readJSONfile,
@@ -99,7 +100,7 @@ program
     .description('Prints the latest url artifact for a given project')    
     .action(act(async (dir, options) => {
         const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);        
-        const job = R.head(await fetchArtifactJobs(projectManifest, expoState));
+        const job = F.head(await fetchArtifactJobs(projectManifest, expoState));
         console.log(job.artifacts.url);
         return true;
     }));
@@ -110,8 +111,8 @@ program
     .option('-r, --release-channel [channel]', 'Specify release channel (staging, production, etc)')
     .action(act(async (dir, { releaseChannel }) => {
         const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);        
-        const job = R.head(await fetchArtifactJobs(projectManifest, expoState));
-        const url = `https://expo.io/${job.fullExperienceName}${R.isNil(releaseChannel) ? '' : `?release-channel=${releaseChannel}`}`;
+        const job = F.head(await fetchArtifactJobs(projectManifest, expoState));
+        const url = `https://expo.io/${job.fullExperienceName}${F.isNil(releaseChannel) ? '' : `?release-channel=${releaseChannel}`}`;
         console.log(url);
         return true;
     }));
@@ -121,25 +122,23 @@ program
     .description('Prints the android package name for a given project (reads from app.json)')
     .action(act(async (dir) => {
         const projectManifest = await readBuildManifest(resolveManifestDir(dir));
-        try {
-            const packageName = projectManifest.android.package;
-            if (R.isNil(packageName) || R.isEmpty(packageName)) {
-                throw new Error('Empty package name');
-            }
-            console.log(packageName);
-            return true;
-        } catch (error) {
-            console.log(chalk.red('There was a problem finding your android package name located in your project\'s app.json'))
+        const path = ['android', 'package'];
+        const packageName = F.get(path, projectManifest);
+        if (isEmpty(packageName)) {
+            const message = `Couldn't find a value associated with "${path.join('.')}" in your project's app.json`;
+            console.log(chalk.red(message));
             return false;
         }
-    }))
+        console.log(packageName);        
+        return true;
+    }));
 
 program
     .version(pkg.version)
     .description(pkg.description)
     .parse(process.argv);
 
-if (R.length(program.args) === 0) {
+if (isEmpty(program.args)) {
     console.log(chalk.red('Please specify a command. Use --help to learn more.'));
     process.exit(1);
 }
