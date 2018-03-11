@@ -5,12 +5,15 @@ global.Promise = Promise;
 
 const pkg = require('./package.json');
 const program = require('commander');
+const fs = require('fs');
 const chalk = require('chalk');
 const F = require('lodash/fp');
 const isEmpty = require('lodash/isEmpty');
 const {
     resolveHome,
     readJSONfile,
+    parseInteger,
+    set,
 } = require('./lib/utils');
 const {
     readBuildManifest,
@@ -18,10 +21,9 @@ const {
     checkIfBuilt,
     fetchArtifactJobs,
     downloadArtifact,
+    buildManifestFilePathFromDir,
 } = require('./lib/expo');
 const validatePackageVersion = require('./lib/validate-package-version');
-
-const resolveManifestDir = (dir) => dir ? resolveHome(dir) : process.cwd();
 
 async function logVersionCheck () {
     try {
@@ -56,7 +58,7 @@ const act = (func) => async (...args) => {
 
 const mapProjectDirToExpoInfo = async (dir) => {
     const expoState = await readJSONfile(resolveHome('~/.expo/state.json'));
-    const projectManifest = await readBuildManifest(resolveManifestDir(dir));
+    const projectManifest = await readBuildManifest(dir);
     return { expoState, projectManifest };
 };
 
@@ -121,7 +123,7 @@ program
     .command('android:package [project-dir]')
     .description('Prints the android package name for a given project (reads from app.json)')
     .action(act(async (dir) => {
-        const projectManifest = await readBuildManifest(resolveManifestDir(dir));
+        const projectManifest = await readBuildManifest(dir);
         const path = ['android', 'package'];
         const packageName = F.get(path, projectManifest);
         if (isEmpty(packageName)) {
@@ -130,6 +132,27 @@ program
             return false;
         }
         console.log(packageName);        
+        return true;
+    }));
+
+program
+    .command('inc:build [project-dir]')
+    .description('Increments the ios.buildNumber and android.versionCode in app.json')
+    .action(act(async (dir) => {
+        const projectManifest = await readBuildManifest(dir, null);
+
+        const iosBuildNum = parseInteger(0, F.getOr(0, ['expo', 'ios', 'buildNumber'], projectManifest));
+        const androidVersionCode = F.getOr(0, ['expo', 'android', 'versionCode'], projectManifest);
+        const newBuildNum = Math.max(iosBuildNum, androidVersionCode) + 1;
+
+        const setObj = F.curry(set);
+        const newManifest = F.compose(
+            setObj(['expo', 'ios', 'buildNumber'], newBuildNum),
+            setObj(['expo', 'android', 'versionCode'], newBuildNum)
+        )(projectManifest);
+
+        const manifestPath = buildManifestFilePathFromDir(dir);
+        fs.writeFileSync(manifestPath, JSON.stringify(newManifest, null, 2));
         return true;
     }));
 
