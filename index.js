@@ -147,7 +147,7 @@ program
 
         const setObj = F.curry(set);
         const newManifest = F.compose(
-            setObj(['expo', 'ios', 'buildNumber'], newBuildNum),
+            setObj(['expo', 'ios', 'buildNumber'], `${newBuildNum}`),
             setObj(['expo', 'android', 'versionCode'], newBuildNum)
         )(projectManifest);
 
