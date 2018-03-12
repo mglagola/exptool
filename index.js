@@ -51,8 +51,10 @@ const tryCatchCmd = (func) => async (...args) => {
     }
 };
 
-const act = (func) => async (...args) => {
-    await logVersionCheck();
+const act = (func, ignoreVersionCheck = false) => async (...args) => {
+    if (!ignoreVersionCheck) {
+        await logVersionCheck();
+    }
     return tryCatchCmd(func)(...args);
 };
 
@@ -105,7 +107,7 @@ program
         const job = F.head(await fetchArtifactJobs(projectManifest, expoState));
         console.log(job.artifacts.url);
         return true;
-    }));
+    }, true));
 
 program
     .command('url:expo [project-dir]')
@@ -117,7 +119,7 @@ program
         const url = `https://expo.io/${job.fullExperienceName}${F.isNil(releaseChannel) ? '' : `?release-channel=${releaseChannel}`}`;
         console.log(url);
         return true;
-    }));
+    }, true));
 
 program
     .command('android:package [project-dir]')
@@ -133,7 +135,7 @@ program
         }
         console.log(packageName);        
         return true;
-    }));
+    }, true));
 
 program
     .command('inc:build [project-dir]')
