@@ -23,22 +23,7 @@ const {
     downloadArtifact,
     buildManifestFilePathFromDir,
 } = require('./lib/expo');
-const validatePackageVersion = require('./lib/validate-package-version');
-
-async function logVersionCheck () {
-    try {
-        const { name, version } = pkg;
-        const {
-            isOutdated,
-            npmVersion,
-        } = await validatePackageVersion({ name, currentVersion: version });
-        if (isOutdated) {
-            console.log(`${chalk.cyan.bold(name)} is outdated (current: ${chalk.cyan.bold(version)}, latest: ${chalk.cyan.bold(npmVersion)})`);
-            console.log(`You can update by running: ${chalk.cyan.bold(`npm install -g ${name}`)}`);
-            console.log('');
-        }
-    } catch (error) {} // fail silently
-}
+const { logVersionCheck } = require('validate-package-version');
 
 const tryCatchCmd = (func) => async (...args) => {
     try {
@@ -53,7 +38,7 @@ const tryCatchCmd = (func) => async (...args) => {
 
 const act = (func, ignoreVersionCheck = false) => async (...args) => {
     if (!ignoreVersionCheck) {
-        await logVersionCheck();
+        await logVersionCheck(pkg);
     }
     return tryCatchCmd(func)(...args);
 };

@@ -1,6 +1,6 @@
 {
   "name": "exptool",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "Expo cli toolset to help automate iOS and Android builds and deployments",
   "main": "index.js",
   "author": "Mark Glagola",
@@ -31,10 +31,9 @@
     "chalk": "^2.3.1",
     "commander": "^2.14.0",
     "lodash": "^4.17.5",
-    "package-json": "^4.0.1",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
-    "semver": "^5.5.0"
+    "validate-package-version": "0.0.1"
   },
   "devDependencies": {
     "eslint": "^4.1.1",
