@@ -1,3 +1,7 @@
+Exptool was originally created to help automate standalone expo app builds, but [exp](https://docs.expo.io/versions/latest/guides/exp-cli.html) recently implemented the [necessary](https://github.com/expo/exp/pull/102) [features](https://github.com/expo/exp/pull/103) required to fulfill this goal.
+
+**Exptool is no longer needed to automate expo standalone builds**. Take a look at this [blog post](https://blog.expo.io/automating-standalone-expo-app-builds-and-deployments-with-fastlane-exp-and-exptool-9b2f5ad0a2cd) if you're looking to automate your standalone builds without exptool.
+
 # Exptool 📲
 
 * Exptool was created to help automate [expo standalone](https://docs.expo.io/versions/latest/guides/building-standalone-apps.html) iOS and Android builds and deployments.

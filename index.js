@@ -49,10 +49,21 @@ const mapProjectDirToExpoInfo = async (dir) => {
     return { expoState, projectManifest };
 };
 
+const logDeprecatedCommand = (cmd, replacementCmd) => {
+    console.log('');
+    console.log(chalk.red(`"${chalk.bold(`exptool ${cmd}`)}" is deprecated.`));
+    if (replacementCmd) {
+        console.log(chalk.red(`Try using ${chalk.bold(replacementCmd)} instead.`));
+    }
+    console.log(`See ${chalk.underline('https://github.com/mglagola/exptool/wiki/Deprecations')} for more info on deprecations.`);
+    console.log('');
+};
+
 program
     .command('check:status [project-dir]')
     .description('Checks the build status for a given project. Will exit with non-zero status code if the project is already building')
     .action(act(async (dir, options) => {
+        logDeprecatedCommand('check:status');
         const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);
         const res = await ensureNotRunning(projectManifest, expoState);
         console.log(res
@@ -68,6 +79,7 @@ program
     .option('-i, --interval [sleep-interval-seconds]', 'Sleep interval between checks')    
     .option('-t, --timeout [timeout-seconds]', 'Max amount of seconds to wait before timing out')
     .action(act(async (dir, options) => {
+        logDeprecatedCommand('wait:build', 'exp build:{ios|android}');
         const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);        
         return await checkIfBuilt(projectManifest, expoState, options);
     }));
