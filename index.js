@@ -60,53 +60,6 @@ const logDeprecatedCommand = (cmd, replacementCmd) => {
 };
 
 program
-    .command('check:status [project-dir]')
-    .description('Checks the build status for a given project. Will exit with non-zero status code if the project is already building')
-    .action(act(async (dir, options) => {
-        logDeprecatedCommand('check:status');
-        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);
-        const res = await ensureNotRunning(projectManifest, expoState);
-        console.log(res
-            ? chalk.green('No active builds for this project, good to go!')
-            : chalk.red('This project is already building, aborting...')
-        );
-        return res;
-    }));
-
-program
-    .command('wait:build [project-dir]')
-    .description('Wait for active build to complete')
-    .option('-i, --interval [sleep-interval-seconds]', 'Sleep interval between checks')    
-    .option('-t, --timeout [timeout-seconds]', 'Max amount of seconds to wait before timing out')
-    .action(act(async (dir, options) => {
-        logDeprecatedCommand('wait:build', 'exp build:{ios|android}');
-        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);        
-        return await checkIfBuilt(projectManifest, expoState, options);
-    }));
-
-program
-    .command('download:artifact [project-dir]')
-    .description('Downloads the most recent artifact for a given project')        
-    .option('-t, --to-dir [dir]', 'Specify dir to download artifact to. Default is current directory')
-    .action(act(async (dir, { toDir }) => {
-        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);        
-        const artifacts = await fetchArtifactJobs(projectManifest, expoState);
-        const downloadToDir = toDir || process.cwd();
-        await Promise.all(artifacts.map(job => downloadArtifact(resolveHome(downloadToDir), job)));
-        return true;
-    }));
-
-program
-    .command('url:artifact [project-dir]')
-    .description('Prints the latest url artifact for a given project')    
-    .action(act(async (dir, options) => {
-        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);        
-        const job = F.head(await fetchArtifactJobs(projectManifest, expoState));
-        console.log(job.artifacts.url);
-        return true;
-    }, true));
-
-program
     .command('url:expo [project-dir]')
     .description('Prints the expo url for a given project and [optional] release channel')
     .option('-r, --release-channel [channel]', 'Specify release channel (staging, production, etc)')
@@ -154,6 +107,53 @@ program
         fs.writeFileSync(manifestPath, JSON.stringify(newManifest, null, 2));
         return true;
     }));
+
+program
+    .command('check:status [project-dir]')
+    .description('[Deprecated] Checks the build status for a given project. Will exit with non-zero status code if the project is already building')
+    .action(act(async (dir, options) => {
+        logDeprecatedCommand('check:status');
+        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);
+        const res = await ensureNotRunning(projectManifest, expoState);
+        console.log(res
+            ? chalk.green('No active builds for this project, good to go!')
+            : chalk.red('This project is already building, aborting...')
+        );
+        return res;
+    }));
+
+program
+    .command('wait:build [project-dir]')
+    .description('[Deprecated] Wait for active build to complete')
+    .option('-i, --interval [sleep-interval-seconds]', 'Sleep interval between checks')    
+    .option('-t, --timeout [timeout-seconds]', 'Max amount of seconds to wait before timing out')
+    .action(act(async (dir, options) => {
+        logDeprecatedCommand('wait:build', 'exp build:{ios|android}');
+        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);        
+        return await checkIfBuilt(projectManifest, expoState, options);
+    }));
+
+program
+    .command('download:artifact [project-dir]')
+    .description('[Deprecated] Downloads the most recent artifact for a given project')        
+    .option('-t, --to-dir [dir]', 'Specify dir to download artifact to. Default is current directory')
+    .action(act(async (dir, { toDir }) => {
+        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);        
+        const artifacts = await fetchArtifactJobs(projectManifest, expoState);
+        const downloadToDir = toDir || process.cwd();
+        await Promise.all(artifacts.map(job => downloadArtifact(resolveHome(downloadToDir), job)));
+        return true;
+    }));
+
+program
+    .command('url:artifact [project-dir]')
+    .description('[Deprecated] Prints the latest url artifact for a given project')    
+    .action(act(async (dir, options) => {
+        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);        
+        const job = F.head(await fetchArtifactJobs(projectManifest, expoState));
+        console.log(job.artifacts.url);
+        return true;
+    }, true));
 
 program
     .version(pkg.version)
