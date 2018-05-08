@@ -50,13 +50,13 @@ const mapProjectDirToExpoInfo = async (dir) => {
 };
 
 const logDeprecatedCommand = (cmd, replacementCmd) => {
-    console.log('');
-    console.log(chalk.red(`"${chalk.bold(`exptool ${cmd}`)}" is deprecated.`));
-    if (replacementCmd) {
-        console.log(chalk.red(`Try using ${chalk.bold(replacementCmd)} instead.`));
-    }
-    console.log(`See ${chalk.underline('https://github.com/mglagola/exptool/wiki/Deprecations')} for more info on deprecations.`);
-    console.log('');
+    // console.log('');
+    // console.log(chalk.red(`"${chalk.bold(`exptool ${cmd}`)}" is deprecated.`));
+    // if (replacementCmd) {
+    //     console.log(chalk.red(`Try using ${chalk.bold(replacementCmd)} instead.`));
+    // }
+    // console.log(`See ${chalk.underline('https://github.com/mglagola/exptool/wiki/Deprecations')} for more info on deprecations.`);
+    // console.log('');
 };
 
 program
@@ -64,7 +64,7 @@ program
     .description('Prints the expo url for a given project and [optional] release channel')
     .option('-r, --release-channel [channel]', 'Specify release channel (staging, production, etc)')
     .action(act(async (dir, { releaseChannel }) => {
-        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);        
+        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);
         const job = F.head(await fetchArtifactJobs(projectManifest, expoState));
         const url = `https://expo.io/${job.fullExperienceName}${F.isNil(releaseChannel) ? '' : `?release-channel=${releaseChannel}`}`;
         console.log(url);
@@ -83,7 +83,7 @@ program
             console.log(chalk.red(message));
             return false;
         }
-        console.log(packageName);        
+        console.log(packageName);
         return true;
     }, true));
 
@@ -125,20 +125,20 @@ program
 program
     .command('wait:build [project-dir]')
     .description('[Deprecated] Wait for active build to complete')
-    .option('-i, --interval [sleep-interval-seconds]', 'Sleep interval between checks')    
+    .option('-i, --interval [sleep-interval-seconds]', 'Sleep interval between checks')
     .option('-t, --timeout [timeout-seconds]', 'Max amount of seconds to wait before timing out')
     .action(act(async (dir, options) => {
         logDeprecatedCommand('wait:build', 'exp build:{ios|android}');
-        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);        
+        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);
         return await checkIfBuilt(projectManifest, expoState, options);
     }));
 
 program
     .command('download:artifact [project-dir]')
-    .description('[Deprecated] Downloads the most recent artifact for a given project')        
+    .description('[Deprecated] Downloads the most recent artifact for a given project')
     .option('-t, --to-dir [dir]', 'Specify dir to download artifact to. Default is current directory')
     .action(act(async (dir, { toDir }) => {
-        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);        
+        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);
         const artifacts = await fetchArtifactJobs(projectManifest, expoState);
         const downloadToDir = toDir || process.cwd();
         await Promise.all(artifacts.map(job => downloadArtifact(resolveHome(downloadToDir), job)));
@@ -147,9 +147,9 @@ program
 
 program
     .command('url:artifact [project-dir]')
-    .description('[Deprecated] Prints the latest url artifact for a given project')    
+    .description('[Deprecated] Prints the latest url artifact for a given project')
     .action(act(async (dir, options) => {
-        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);        
+        const { expoState, projectManifest } = await mapProjectDirToExpoInfo(dir);
         const job = F.head(await fetchArtifactJobs(projectManifest, expoState));
         console.log(job.artifacts.url);
         return true;
