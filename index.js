@@ -88,6 +88,36 @@ program
     }, true));
 
 program
+    .command('app:build [project-dir]')
+    .description('Prints the MAX number between ios.buildNumber and android.versionCode in app.json')
+    .action(act(async (dir) => {
+        const projectManifest = await readBuildManifest(dir);
+        const build = (() => {
+            const iosBuildNumber = F.getOr(null, ['ios', 'buildNumber'], projectManifest);
+            const androidVersionCode = F.getOr(null, ['android', 'versionCode'], projectManifest);
+            if (!iosBuildNumber) {
+                return androidVersionCode || 0;
+            }
+            if (!androidVersionCode) {
+                return iosBuildNumber || 0;
+            }
+            return Math.max(parseInt(iosBuildNumber), androidVersionCode);
+        })();
+        console.log(build);
+        return true;
+    }));
+
+program
+    .command('app:version [project-dir]')
+    .description('Prints the version in app.json')
+    .action(act(async (dir) => {
+        const projectManifest = await readBuildManifest(dir);
+        const version = F.getOr('0.0.0', ['version'], projectManifest);
+        console.log(version);
+        return true;
+    }));
+
+program
     .command('inc:build [project-dir]')
     .description('Increments the ios.buildNumber and android.versionCode in app.json')
     .action(act(async (dir) => {
